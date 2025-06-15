@@ -13,21 +13,15 @@ const PORT = process.env.PORT || 3000;
 connectDB();
 
 // CORS configuration
-app.use(cors({
-  origin: ['https://to-do-l82a.onrender.com', 'http://localhost:5173'],
+const corsOptions = {
+  origin: 'https://to-do-l82a.onrender.com',
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
-  credentials: true
-}));
+  credentials: true,
+  optionsSuccessStatus: 200
+};
 
-// Add CSP headers middleware
-app.use((req, res, next) => {
-  res.setHeader(
-    'Content-Security-Policy',
-    "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self'"
-  );
-  next();
-});
+app.use(cors(corsOptions));
 
 app.use(bodyParser.json());
 
