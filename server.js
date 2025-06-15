@@ -29,12 +29,26 @@ app.use((req, res, next) => {
 
 app.use(bodyParser.json());
 
+// Serve static files from the public directory
+app.use(express.static(path.join(__dirname, 'public')));
+
+// Root route handler
+app.get('/', (req, res) => {
+  res.json({ message: 'Todo API is running' });
+});
+
+// Health check endpoint
+app.get('/health', (req, res) => {
+  res.json({ status: 'ok' });
+});
+
 // Get all todos
 app.get('/api/todos', async (req, res) => {
   try {
     const todos = await Todo.find().sort({ createdAt: -1 });
     res.json(todos);
   } catch (error) {
+    console.error('Error fetching todos:', error);
     res.status(500).json({ error: error.message });
   }
 });
@@ -49,6 +63,7 @@ app.post('/api/todos', async (req, res) => {
     const savedTodo = await newTodo.save();
     res.status(201).json(savedTodo);
   } catch (error) {
+    console.error('Error creating todo:', error);
     res.status(500).json({ error: error.message });
   }
 });
@@ -66,6 +81,7 @@ app.put('/api/todos/:id', async (req, res) => {
     }
     res.json(updatedTodo);
   } catch (error) {
+    console.error('Error updating todo:', error);
     res.status(500).json({ error: error.message });
   }
 });
@@ -79,8 +95,15 @@ app.delete('/api/todos/:id', async (req, res) => {
     }
     res.status(204).end();
   } catch (error) {
+    console.error('Error deleting todo:', error);
     res.status(500).json({ error: error.message });
   }
+});
+
+// Error handling middleware
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(500).json({ error: 'Something went wrong!' });
 });
 
 app.listen(PORT, () => {
